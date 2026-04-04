@@ -17,9 +17,15 @@ app.use((req, _res, next) => {
   next();
 });
 
-/** ✅ CORS Setup */
+/** ✅ CORS — comma-separated origins (local + Vercel). Set CORS_ORIGIN in production. */
+const defaultOrigins = "http://localhost:3000";
+const corsOrigins = (process.env.CORS_ORIGIN || defaultOrigins)
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
 const corsOptions = {
-  origin: "http://localhost:3000",
+  origin:
+    corsOrigins.length === 1 ? corsOrigins[0] : corsOrigins,
   methods: ["GET", "POST"],
   allowedHeaders: ["Content-Type", "Authorization"],
   optionsSuccessStatus: 204,

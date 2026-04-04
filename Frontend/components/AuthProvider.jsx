@@ -91,9 +91,11 @@ export function AuthProvider({ children }) {
         typeof nextPath === "string" && nextPath.startsWith("/") && !nextPath.startsWith("//")
           ? nextPath
           : "/app";
-      const origin =
-        typeof window !== "undefined" ? window.location.origin : "";
-      const redirectTo = `${origin}/auth/callback?next=${encodeURIComponent(safe)}`;
+      const siteBase =
+        (typeof process !== "undefined" &&
+          process.env.NEXT_PUBLIC_APP_URL?.trim().replace(/\/$/, "")) ||
+        (typeof window !== "undefined" ? window.location.origin : "");
+      const redirectTo = `${siteBase}/auth/callback?next=${encodeURIComponent(safe)}`;
 
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "google",
