@@ -17,21 +17,35 @@ app.use((req, _res, next) => {
   next();
 });
 
-/** ✅ CORS — comma-separated origins (local + Vercel). Set CORS_ORIGIN in production. */
-const defaultOrigins = "http://localhost:3000";
-const corsOrigins = (process.env.CORS_ORIGIN || defaultOrigins)
+/** ✅ CORS — dynamic origin; defaults + optional CORS_ORIGIN (comma-separated) */
+const defaultAllowedOrigins = [
+  "http://localhost:3000",
+  "https://hook-lab-brown.vercel.app",
+];
+const extraOrigins = (process.env.CORS_ORIGIN || "")
   .split(",")
   .map((s) => s.trim())
   .filter(Boolean);
+const allowedOriginSet = new Set([...defaultAllowedOrigins, ...extraOrigins]);
+
 const corsOptions = {
-  origin:
-    corsOrigins.length === 1 ? corsOrigins[0] : corsOrigins,
-  methods: ["GET", "POST"],
+  origin(origin, callback) {
+    if (!origin) {
+      return callback(null, true);
+    }
+    if (allowedOriginSet.has(origin)) {
+      return callback(null, true);
+    }
+    return callback(null, false);
+  },
+  methods: ["GET", "POST", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
   optionsSuccessStatus: 204,
 };
 
 app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 
 /** ✅ Body Parser */
 app.use(express.json({ limit: "64kb" }));
