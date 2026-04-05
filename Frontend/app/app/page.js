@@ -142,6 +142,7 @@ export default function ChatPage() {
   const [chatsLoading, setChatsLoading] = useState(true);
   const [chatsError, setChatsError] = useState(null);
   const [currentChatId, setCurrentChatId] = useState(null);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
@@ -176,6 +177,33 @@ export default function ChatPage() {
       void refreshChats();
     }
   }, [authLoading, user, refreshChats]);
+
+  useEffect(() => {
+    if (!mobileNavOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [mobileNavOpen]);
+
+  useEffect(() => {
+    if (!mobileNavOpen) return;
+    const onKey = (e) => {
+      if (e.key === "Escape") setMobileNavOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [mobileNavOpen]);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 768px)");
+    const onChange = () => {
+      if (mq.matches) setMobileNavOpen(false);
+    };
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
 
   const persistState = useCallback(async () => {
     if (!user?.id || !supabase) return;
@@ -640,6 +668,7 @@ export default function ChatPage() {
   return (
     <div className="flex min-h-dvh flex-col bg-[#0b0b0f] md:h-dvh md:flex-row md:overflow-hidden">
       <ChatSidebar
+        variant="rail"
         chats={chatRows}
         currentChatId={currentChatId}
         loading={chatsLoading}
@@ -651,12 +680,12 @@ export default function ChatPage() {
       />
 
       <div className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-[#0b0b0f]">
-        <AppChatHeader />
+        <AppChatHeader onOpenChatMenu={() => setMobileNavOpen(true)} />
 
         <main className="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-[#0b0b0f]">
-          <div className="hooklab-scrollbar mx-auto flex min-h-0 w-full max-w-7xl flex-1 flex-col overflow-y-auto overscroll-y-contain bg-[#0b0b0f] px-4 pb-[calc(10rem+env(safe-area-inset-bottom))] pt-6 sm:px-6 md:px-8 md:pb-[calc(11rem+env(safe-area-inset-bottom))] lg:px-10">
+          <div className="hooklab-scrollbar mx-auto flex min-h-0 w-full max-w-7xl flex-1 flex-col overflow-y-auto overscroll-y-contain bg-[#0b0b0f] px-4 pb-[calc(10rem+env(safe-area-inset-bottom))] pt-4 sm:px-6 sm:pt-6 md:px-8 md:pb-[calc(11rem+env(safe-area-inset-bottom))] lg:px-10">
             {messages.length === 0 && !loading && (
-              <div className="hooklab-message-enter flex flex-1 flex-col justify-center py-10">
+              <div className="hooklab-message-enter flex flex-1 flex-col justify-center py-6 sm:py-10">
                 <div className="mx-auto w-full max-w-4xl text-center">
                   <p className="bg-gradient-to-r from-orange-400 to-pink-500 bg-clip-text text-[13px] font-semibold uppercase tracking-[0.14em] text-transparent">
                     HookLab AI
@@ -825,6 +854,42 @@ export default function ChatPage() {
           />
         </div>
       </div>
+
+      {mobileNavOpen ? (
+        <div
+          className="fixed inset-0 z-[60] md:hidden"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Chat history"
+        >
+          <button
+            type="button"
+            className="absolute inset-0 bg-black/70 backdrop-blur-[1px]"
+            aria-label="Close menu"
+            onClick={() => setMobileNavOpen(false)}
+          />
+          <div className="absolute left-0 top-0 flex h-full w-[min(88vw,20rem)] max-w-[320px] flex-col pt-[env(safe-area-inset-top)] shadow-[16px_0_40px_-8px_rgba(0,0,0,0.9)]">
+            <ChatSidebar
+              variant="drawer"
+              onClose={() => setMobileNavOpen(false)}
+              chats={chatRows}
+              currentChatId={currentChatId}
+              loading={chatsLoading}
+              error={chatsError}
+              onSelect={(row) => {
+                handleSelectChat(row);
+                setMobileNavOpen(false);
+              }}
+              onNewChat={() => {
+                handleNewChat();
+                setMobileNavOpen(false);
+              }}
+              onRefresh={refreshChats}
+              onDelete={handleDeleteChat}
+            />
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

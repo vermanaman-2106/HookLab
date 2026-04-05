@@ -3,8 +3,9 @@
 import SiteHeader from "@/components/SiteHeader";
 import { useAuth } from "@/components/AuthProvider";
 import { useRouter } from "next/navigation";
+import { Menu } from "lucide-react";
 
-export default function AppChatHeader() {
+export default function AppChatHeader({ onOpenChatMenu }) {
   const { user, signOut } = useAuth();
   const router = useRouter();
 
@@ -17,6 +18,18 @@ export default function AppChatHeader() {
   return (
     <SiteHeader
       variant="app"
+      appLeadingSlot={
+        typeof onOpenChatMenu === "function" ? (
+          <button
+            type="button"
+            onClick={onOpenChatMenu}
+            className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-white/[0.06] hover:text-white"
+            aria-label="Open chat history"
+          >
+            <Menu className="h-5 w-5" strokeWidth={2} />
+          </button>
+        ) : null
+      }
       appRightSlot={
         <div className="flex min-w-0 items-center gap-2 sm:gap-3">
           <span

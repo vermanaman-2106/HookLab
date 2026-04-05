@@ -1,8 +1,11 @@
 "use client";
 
-import { Loader2, MessageSquarePlus, RefreshCw, Trash2 } from "lucide-react";
+import { Loader2, MessageSquarePlus, RefreshCw, Trash2, X } from "lucide-react";
 import { chatTitleFromPayload } from "@/lib/chats";
 
+/**
+ * @param {"rail" | "drawer"} [variant] — rail = desktop left column; drawer = full-height mobile panel
+ */
 export default function ChatSidebar({
   chats,
   currentChatId,
@@ -12,14 +15,22 @@ export default function ChatSidebar({
   onNewChat,
   onRefresh,
   onDelete,
+  variant = "rail",
+  onClose,
 }) {
+  const isDrawer = variant === "drawer";
+
+  const shellClass = isDrawer
+    ? "flex h-full min-h-0 w-full flex-col border-r border-[#1f1f26] bg-[#08080c] shadow-[8px_0_40px_-12px_rgba(0,0,0,0.75)]"
+    : "hidden min-h-0 w-[280px] shrink-0 flex-col border-r border-[#1f1f26] bg-[#08080c] md:sticky md:top-0 md:flex md:h-dvh";
+
   return (
-    <aside className="flex max-h-[min(42vh,360px)] min-h-0 w-full shrink-0 flex-col border-b border-[#1f1f26] bg-[#08080c] md:sticky md:top-0 md:h-dvh md:max-h-none md:w-[280px] md:border-b-0 md:border-r">
-      <div className="flex min-h-[60px] shrink-0 items-center justify-between gap-2 border-b border-[#1f1f26]/70 bg-[#08080c] px-4 py-3.5 sm:min-h-[64px] sm:px-6 sm:py-4">
+    <aside className={shellClass}>
+      <div className="flex min-h-[52px] shrink-0 items-center justify-between gap-2 border-b border-[#1f1f26]/70 bg-[#08080c] px-3 py-3 sm:min-h-[60px] sm:px-4 sm:py-3.5 md:min-h-[64px] md:px-6 md:py-4">
         <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
           Chats
         </p>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-0.5 sm:gap-1">
           <button
             type="button"
             onClick={onRefresh}
@@ -35,11 +46,21 @@ export default function ChatSidebar({
           <button
             type="button"
             onClick={onNewChat}
-            className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-orange-500/90 to-pink-500/90 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:brightness-105"
+            className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-orange-500/90 to-pink-500/90 px-2.5 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:brightness-105 sm:px-3"
           >
             <MessageSquarePlus className="h-3.5 w-3.5" />
             New
           </button>
+          {isDrawer && typeof onClose === "function" ? (
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-white/[0.06] hover:text-white"
+              aria-label="Close chat list"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          ) : null}
         </div>
       </div>
 

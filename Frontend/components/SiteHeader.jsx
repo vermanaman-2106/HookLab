@@ -14,6 +14,8 @@ export default function SiteHeader({
   ctaLabel = "Try it now",
   variant = "default",
   appRightSlot = null,
+  /** Shown before the logo on small screens (e.g. mobile menu) */
+  appLeadingSlot = null,
 }) {
   const isHero = variant === "hero";
   const isApp = variant === "app";
@@ -44,24 +46,29 @@ export default function SiteHeader({
         }`}
       >
         {isApp ? (
-          <div className="flex w-full items-center justify-between gap-3">
-            <Link
-              href="/"
-              className="flex min-w-0 shrink-0 items-center gap-2.5 transition-opacity duration-200 hover:opacity-90"
-              aria-label="HookLab AI — home"
-            >
-              <span
-                className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-orange-500 to-pink-500 text-sm font-bold text-white shadow-[0_4px_24px_-4px_rgba(249,115,22,0.45)]"
-                aria-hidden
+          <div className="flex w-full min-w-0 items-center justify-between gap-2 sm:gap-3">
+            <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
+              {appLeadingSlot ? (
+                <span className="flex shrink-0 md:hidden">{appLeadingSlot}</span>
+              ) : null}
+              <Link
+                href="/"
+                className="flex min-w-0 shrink-0 items-center gap-2 sm:gap-2.5 transition-opacity duration-200 hover:opacity-90"
+                aria-label="HookLab AI — home"
               >
-                H
-              </span>
-              <span className="text-sm font-semibold tracking-tight text-white">
-                HookLab AI
-              </span>
-            </Link>
+                <span
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-orange-500 to-pink-500 text-sm font-bold text-white shadow-[0_4px_24px_-4px_rgba(249,115,22,0.45)]"
+                  aria-hidden
+                >
+                  H
+                </span>
+                <span className="truncate text-sm font-semibold tracking-tight text-white">
+                  HookLab AI
+                </span>
+              </Link>
+            </div>
             {appRightSlot ? (
-              <div className="flex min-w-0 shrink items-center justify-end">
+              <div className="flex min-w-0 shrink-0 items-center justify-end">
                 {appRightSlot}
               </div>
             ) : null}
