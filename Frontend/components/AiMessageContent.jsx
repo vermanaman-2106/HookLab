@@ -72,7 +72,7 @@ function SectionBody({ body }) {
   flushList();
 
   return (
-    <div className="space-y-3.5 text-[15px] leading-[1.7] text-gray-300">
+    <div className="space-y-3.5 text-[15px] leading-[1.75] text-gray-300">
       {blocks.map((b, i) =>
         b.type === "p" ? (
           <p key={i} className="whitespace-pre-wrap text-pretty">
@@ -81,7 +81,7 @@ function SectionBody({ body }) {
         ) : (
           <ul
             key={i}
-            className="list-disc space-y-2.5 pl-5 text-pretty marker:text-orange-400/75"
+            className="list-disc space-y-2.5 pl-5 text-pretty marker:text-orange-400/60"
           >
             {b.items.map((item, j) => (
               <li key={j} className="pl-0.5">
@@ -95,13 +95,10 @@ function SectionBody({ body }) {
   );
 }
 
-const cardClass =
-  "rounded-2xl border border-[#1f1f26] bg-[#111116] px-5 py-4 shadow-[0_8px_32px_-14px_rgba(0,0,0,0.55)] transition-shadow duration-200 hover:shadow-[0_12px_40px_-12px_rgba(0,0,0,0.5)]";
-
 function ProseFallback({ content }) {
   return (
-    <div className={cardClass}>
-      <p className="whitespace-pre-wrap text-pretty leading-relaxed">{content}</p>
+    <div className="text-[15px] leading-[1.75] text-gray-300">
+      <p className="whitespace-pre-wrap text-pretty">{content}</p>
     </div>
   );
 }
@@ -115,18 +112,18 @@ export default function AiMessageContent({ content }) {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-10">
       {sections.map((sec, idx) => (
         <Fragment key={idx}>
           {sec.title ? (
-            <section className={cardClass}>
-              <h3 className="mb-4 border-b border-[#1f1f26] pb-3 text-base font-semibold leading-snug tracking-tight text-white">
+            <section className="space-y-4">
+              <h3 className="text-[15px] font-semibold leading-snug tracking-tight text-white/90">
                 {sec.title}
               </h3>
               <SectionBody body={sec.body} />
             </section>
           ) : (
-            <div className={cardClass}>
+            <div>
               <SectionBody body={sec.body} />
             </div>
           )}

@@ -528,7 +528,7 @@ export default function ChatPage() {
           id: crypto.randomUUID(),
           role: "assistant",
           content:
-            "Want to go deeper? Tap a follow-up or tell me what to tweak.",
+            "Use a chip below or tell me what to refine next.",
         },
       ]);
 
@@ -579,7 +579,7 @@ export default function ChatPage() {
             id: crypto.randomUUID(),
             role: "assistant",
             content:
-              "Want to go deeper? Tap a follow-up or tell me what to tweak.",
+              "Use a chip below or tell me what to refine next.",
           },
         ]);
       } catch (err) {
@@ -620,7 +620,7 @@ export default function ChatPage() {
           id: crypto.randomUUID(),
           role: "assistant",
           content:
-            "Want to go deeper? Tap a follow-up or tell me what to tweak.",
+            "Use a chip below or tell me what to refine next.",
         },
       ]);
     } catch (err) {
