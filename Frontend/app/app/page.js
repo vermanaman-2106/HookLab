@@ -644,7 +644,7 @@ export default function ChatPage() {
     phase === PHASE.CLARIFY
       ? "Answer in your own words…"
       : phase === PHASE.INTAKE
-        ? "Describe an idea—or attach an Instagram screenshot (Image+)…"
+        ? "Ask anything—or attach a profile screenshot…"
         : "Describe your content idea…";
 
   const showPlanGrid = phase === PHASE.PLAN && !loading;
@@ -683,7 +683,7 @@ export default function ChatPage() {
         <AppChatHeader onOpenChatMenu={() => setMobileNavOpen(true)} />
 
         <main className="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-[#0b0b0f]">
-          <div className="hooklab-scrollbar mx-auto flex min-h-0 w-full max-w-7xl flex-1 flex-col overflow-y-auto overscroll-y-contain bg-[#0b0b0f] px-4 pb-[calc(10rem+env(safe-area-inset-bottom))] pt-4 sm:px-6 sm:pt-6 md:px-8 md:pb-[calc(11rem+env(safe-area-inset-bottom))] lg:px-10">
+          <div className="hooklab-scrollbar mx-auto flex min-h-0 w-full max-w-7xl flex-1 flex-col overflow-y-auto overscroll-y-contain bg-[#0b0b0f] px-4 pb-[calc(8.5rem+env(safe-area-inset-bottom))] pt-4 sm:px-6 sm:pt-6 md:px-8 md:pb-[calc(10.5rem+env(safe-area-inset-bottom))] lg:px-10">
             {messages.length === 0 && !loading && (
               <div className="hooklab-message-enter flex flex-1 flex-col justify-center py-6 sm:py-10">
                 <div className="mx-auto w-full max-w-4xl text-center">

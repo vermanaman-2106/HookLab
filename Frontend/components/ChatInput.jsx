@@ -51,8 +51,9 @@ const ChatInput = forwardRef(function ChatInput(
     const el = textareaRef.current;
     if (!el) return;
     el.style.height = "auto";
-    const max = 180;
-    el.style.height = `${Math.min(el.scrollHeight, max)}px`;
+    const max = 200;
+    const min = 40;
+    el.style.height = `${Math.min(Math.max(el.scrollHeight, min), max)}px`;
   }, []);
 
   useEffect(() => {
@@ -111,11 +112,11 @@ const ChatInput = forwardRef(function ChatInput(
     !disabled && (value.trim().length > 0 || imageFile);
 
   return (
-    <div className="bg-gradient-to-t from-[#0b0b0f] via-[#0b0b0f]/98 to-transparent pb-[max(1rem,env(safe-area-inset-bottom))] pt-6">
-      <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 md:px-8 lg:px-10">
+    <div className="bg-gradient-to-t from-[#0b0b0f] via-[#0b0b0f]/98 to-transparent pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 sm:pt-4">
+      <div className="mx-auto w-full max-w-7xl px-3 sm:px-6 md:px-8 lg:px-10">
         {previewUrl && imageFile ? (
-          <div className="mb-3 flex items-start gap-3 rounded-xl border border-[#1f1f26]/80 bg-[#111116]/90 p-2.5 pr-3 shadow-[0_8px_28px_-12px_rgba(0,0,0,0.45)]">
-            <div className="relative h-16 w-14 shrink-0 overflow-hidden rounded-lg border border-white/10 bg-black/40">
+          <div className="mb-2 flex items-center gap-2.5 rounded-xl border border-[#2a2a32] bg-[#16161c] px-2.5 py-2 sm:mb-2.5">
+            <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-white/10 bg-black/40">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={previewUrl}
@@ -123,19 +124,19 @@ const ChatInput = forwardRef(function ChatInput(
                 className="h-full w-full object-cover"
               />
             </div>
-            <div className="min-w-0 flex-1 pt-0.5">
-              <p className="truncate text-[13px] font-medium text-gray-200">
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-[12px] font-medium text-gray-200 sm:text-[13px]">
                 {imageFile.name}
               </p>
-              <p className="mt-0.5 text-[11px] text-gray-500">
-                Profile screenshot · JPG or PNG
+              <p className="text-[10px] text-gray-500 sm:text-[11px]">
+                Profile screenshot
               </p>
             </div>
             <button
               type="button"
               onClick={clearImage}
               disabled={disabled}
-              className="shrink-0 rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-white/[0.06] hover:text-white disabled:opacity-40"
+              className="shrink-0 rounded-full p-2 text-gray-500 transition-colors hover:bg-white/[0.08] hover:text-white disabled:opacity-40"
               aria-label="Remove image"
             >
               <X className="h-4 w-4" />
@@ -144,7 +145,7 @@ const ChatInput = forwardRef(function ChatInput(
         ) : null}
 
         <form
-          className="group flex items-end gap-2 overflow-hidden rounded-2xl border-0 bg-[#13131a]/82 p-2 pl-2.5 shadow-[0_12px_44px_-8px_rgba(0,0,0,0.55),inset_0_1px_0_0_rgba(255,255,255,0.07)] backdrop-blur-2xl transition-[box-shadow,background-color] duration-300 focus-within:bg-[#15151d]/92 focus-within:shadow-[0_14px_52px_-6px_rgba(0,0,0,0.62),inset_0_1px_0_0_rgba(255,255,255,0.1),0_0_56px_-10px_rgba(249,115,22,0.16)] sm:gap-3 sm:p-2.5 sm:pl-3"
+          className="group flex min-h-[44px] items-end gap-1 rounded-[1.35rem] border border-[#2f2f38] bg-[#1c1c22] px-1.5 py-1 shadow-[0_4px_24px_-4px_rgba(0,0,0,0.45)] transition-[box-shadow,background-color,border-color] duration-200 focus-within:border-[#3f3f4c] focus-within:bg-[#202028] focus-within:shadow-[0_6px_28px_-4px_rgba(0,0,0,0.5)] sm:min-h-[46px] sm:gap-1.5 sm:rounded-[1.5rem] sm:px-2 sm:py-1.5"
           onSubmit={(e) => {
             e.preventDefault();
             if (canSend) void submitFromForm();
@@ -163,11 +164,11 @@ const ChatInput = forwardRef(function ChatInput(
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={disabled}
-            className="mb-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/[0.06] bg-white/[0.03] text-gray-400 transition-all hover:border-orange-500/25 hover:bg-white/[0.06] hover:text-orange-300 disabled:pointer-events-none disabled:opacity-40"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-white/[0.08] hover:text-gray-200 disabled:pointer-events-none disabled:opacity-40"
             aria-label="Attach Instagram screenshot"
             title="Attach screenshot (JPG, PNG)"
           >
-            <ImagePlus className="h-[18px] w-[18px]" strokeWidth={2} />
+            <ImagePlus className="h-[17px] w-[17px]" strokeWidth={1.75} />
           </button>
 
           <label htmlFor="hooklab-input" className="sr-only">
@@ -182,18 +183,18 @@ const ChatInput = forwardRef(function ChatInput(
             placeholder={placeholder}
             onChange={(e) => onChange(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="max-h-[180px] min-h-[52px] flex-1 resize-none bg-transparent py-3.5 text-[15px] leading-relaxed text-white placeholder:text-gray-500/85 focus:outline-none disabled:cursor-not-allowed disabled:opacity-55"
+            className="max-h-[200px] min-h-[40px] min-w-0 flex-1 resize-none bg-transparent py-2.5 pl-0.5 pr-1 text-[15px] leading-[1.35] text-white placeholder:text-gray-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-55 sm:py-2.5 sm:text-[15px]"
           />
           <button
             type="submit"
             disabled={!canSend}
-            className="mb-0.5 mr-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-orange-500 via-orange-500 to-pink-500 text-white shadow-[0_6px_24px_-6px_rgba(249,115,22,0.45),inset_0_1px_0_0_rgba(255,255,255,0.22)] transition-all duration-200 hover:scale-[1.04] hover:brightness-[1.06] active:scale-[0.97] disabled:pointer-events-none disabled:scale-100 disabled:from-[#2a2a32] disabled:via-[#2a2a32] disabled:to-[#2a2a32] disabled:text-gray-500 disabled:shadow-none"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-white transition-transform duration-150 enabled:bg-gradient-to-br enabled:from-orange-500 enabled:to-pink-500 enabled:shadow-[0_2px_12px_-2px_rgba(249,115,22,0.45)] enabled:hover:brightness-110 enabled:active:scale-[0.96] disabled:pointer-events-none disabled:bg-[#2b2b32] disabled:text-gray-600"
             aria-label="Send message"
           >
-            <SendHorizontal className="h-[18px] w-[18px]" strokeWidth={2} />
+            <SendHorizontal className="h-[17px] w-[17px]" strokeWidth={1.75} />
           </button>
         </form>
-        <p className="mt-3 text-center text-[11px] font-medium tracking-wide text-gray-500">
+        <p className="mt-2 text-center text-[10px] leading-snug text-gray-500 sm:mt-2.5 sm:text-[11px]">
           HookLab suggests drafts—always review before you post.
         </p>
       </div>
