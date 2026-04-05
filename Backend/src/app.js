@@ -44,8 +44,10 @@ const corsOptions = {
   optionsSuccessStatus: 204,
 };
 
+/** CORS for all methods/paths (including OPTIONS preflight). Do not use "*" routes — Express 5 / path-to-regexp rejects them. */
 app.use(cors(corsOptions));
-app.options("*", cors(corsOptions));
+/** Explicit root OPTIONS (valid path); other paths are covered by the middleware above. */
+app.options("/", cors(corsOptions));
 
 /** ✅ Body Parser */
 app.use(express.json({ limit: "64kb" }));
