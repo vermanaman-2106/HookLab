@@ -16,6 +16,7 @@ function AssistantAvatar() {
 export default function ChatBubble({
   role,
   content,
+  image = null,
   suggestions = [],
   onSuggestionClick,
   isUserTypePick = false,
@@ -27,16 +28,33 @@ export default function ChatBubble({
       : content?.result || JSON.stringify(content);
 
   if (role === "user") {
+    const imgSrc = image && typeof image.src === "string" ? image.src : null;
+    const caption = typeof safeContent === "string" ? safeContent.trim() : "";
+
     return (
       <div className="hooklab-message-enter flex justify-end">
         <div
-          className={`max-w-[min(100%,78%)] rounded-2xl px-4 py-3.5 text-[15px] leading-relaxed text-white shadow-[0_8px_28px_-8px_rgba(249,115,22,0.35)] transition-transform duration-200 ${
+          className={`max-w-[min(100%,min(78%,520px))] overflow-hidden rounded-2xl text-[15px] leading-relaxed text-white shadow-[0_8px_28px_-8px_rgba(249,115,22,0.35)] transition-transform duration-200 ${
             isUserTypePick
               ? "border border-orange-500/35 bg-[#111116] text-gray-100 ring-1 ring-orange-500/25"
               : "bg-gradient-to-r from-orange-500 to-pink-500"
           }`}
         >
-          <p className="whitespace-pre-wrap text-pretty">{safeContent}</p>
+          {imgSrc ? (
+            <div className="border-b border-white/15 bg-black/25">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={imgSrc}
+                alt=""
+                className="mx-auto max-h-[min(420px,55vh)] w-full object-contain"
+              />
+            </div>
+          ) : null}
+          {caption ? (
+            <p className="whitespace-pre-wrap px-4 py-3.5 text-pretty">{caption}</p>
+          ) : imgSrc ? (
+            <p className="sr-only">Image attachment</p>
+          ) : null}
         </div>
       </div>
     );

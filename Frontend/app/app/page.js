@@ -17,6 +17,7 @@ import {
   fetchPinterestInspiration,
   generateFromIdea,
 } from "@/lib/api";
+import { fileToDataUrl, fileToResizedDataUrl } from "@/lib/imageAttachment";
 import {
   buildChatPayload,
   deleteChat,
@@ -94,11 +95,38 @@ function ensureQuestionChip(text) {
   return `${t.replace(/[.!…\s]+$/u, "")}?`;
 }
 
-function isPinterestInspirationFollowUp(action) {
-  const t = (action || "").trim().toLowerCase();
+function lastAssistantContent(msgs) {
+  for (let i = msgs.length - 1; i >= 0; i--) {
+    if (msgs[i].role === "assistant") return msgs[i].content || "";
+  }
+  return "";
+}
+
+function isAffirmativeShortReply(text) {
+  const t = (text || "").trim().toLowerCase();
   return (
+    t === "y" ||
+    t === "yes" ||
+    /^(y(es)?|yeah|yep|sure|ok|okay|please|sounds good|do it|show me)\b/.test(t)
+  );
+}
+
+/** Chip click, paraphrase, or "yes" right after assistant offered Pinterest-style examples */
+function isPinterestInspirationFollowUp(action, messagesForContext = []) {
+  const t = (action || "").trim().toLowerCase();
+  const chipOrParaphrase =
     t.includes("pinterest-style visual inspiration") ||
-    t.includes("pinterest style visual inspiration")
+    t.includes("pinterest style visual inspiration") ||
+    (t.includes("visual inspiration") && t.includes("pinterest")) ||
+    t.includes("pinterest-style examples") ||
+    t.includes("show pinterest-style examples");
+  if (chipOrParaphrase) return true;
+  if (!isAffirmativeShortReply(action)) return false;
+  const last = lastAssistantContent(messagesForContext).toLowerCase();
+  return (
+    last.includes("pinterest-style examples") ||
+    last.includes("pinterest-style visual") ||
+    (last.includes("visual inspiration") && last.includes("pinterest"))
   );
 }
 
@@ -179,13 +207,24 @@ export default function ChatPage() {
   }, [authLoading, user, refreshChats]);
 
   useEffect(() => {
-    if (!mobileNavOpen) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    if (authLoading || !isSupabaseConfigured) return undefined;
+    const html = document.documentElement;
+    const body = document.body;
+    const prevHtmlOverflow = html.style.overflow;
+    const prevHtmlHeight = html.style.height;
+    const prevBodyOverflow = body.style.overflow;
+    const prevBodyHeight = body.style.height;
+    html.style.overflow = "hidden";
+    html.style.height = "100%";
+    body.style.overflow = "hidden";
+    body.style.height = "100%";
     return () => {
-      document.body.style.overflow = prev;
+      html.style.overflow = prevHtmlOverflow;
+      html.style.height = prevHtmlHeight;
+      body.style.overflow = prevBodyOverflow;
+      body.style.height = prevBodyHeight;
     };
-  }, [mobileNavOpen]);
+  }, [authLoading, isSupabaseConfigured]);
 
   useEffect(() => {
     if (!mobileNavOpen) return;
@@ -362,7 +401,7 @@ export default function ChatPage() {
         {
           id: crypto.randomUUID(),
           role: "assistant",
-          content: `Nice — I’ve got the idea. Before I build anything generic, three quick questions so the plan fits you.\n\nQuestion 1 of ${questions.length}:\n${q0}`,
+          content: `Nice — I’ve got the idea. Before I build anything generic, a few quick questions so this plan actually fits you.\n\n${q0}`,
         },
       ]);
     } catch (err) {
@@ -393,9 +432,30 @@ export default function ChatPage() {
       setVisionAnalyze(true);
       setLoading(true);
       const userLine = text || "📸 Instagram profile screenshot";
+
+      let imagePayload = null;
+      try {
+        const src = await fileToResizedDataUrl(image);
+        imagePayload = { src, name: image.name || "Screenshot" };
+      } catch {
+        try {
+          imagePayload = {
+            src: await fileToDataUrl(image),
+            name: image.name || "Screenshot",
+          };
+        } catch {
+          imagePayload = null;
+        }
+      }
+
       setMessages((prev) => [
         ...prev,
-        { id: crypto.randomUUID(), role: "user", content: userLine },
+        {
+          id: crypto.randomUUID(),
+          role: "user",
+          content: userLine,
+          ...(imagePayload ? { image: imagePayload } : {}),
+        },
       ]);
       try {
         const result = await analyzeInstagramProfile(
@@ -453,12 +513,14 @@ export default function ChatPage() {
 
       if (nextAnswers.length < clarifyQuestions.length) {
         const qi = clarifyQuestions[nextAnswers.length];
+        const followLead =
+          nextAnswers.length === 1 ? "Got it.\n\n" : "Love that.\n\n";
         setMessages((prev) => [
           ...prev,
           {
             id: crypto.randomUUID(),
             role: "assistant",
-            content: `Question ${nextAnswers.length + 1} of ${clarifyQuestions.length}:\n${qi}`,
+            content: `${followLead}${qi}`,
           },
         ]);
         return;
@@ -563,7 +625,7 @@ export default function ChatPage() {
 
     const token = getAccessToken();
 
-    if (isPinterestInspirationFollowUp(action)) {
+    if (isPinterestInspirationFollowUp(action, messages)) {
       setPinterestLoading(true);
       try {
         const context = buildPinterestContext(idea, priorOutput, action);
@@ -666,7 +728,7 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="flex min-h-dvh flex-col bg-[#0b0b0f] md:h-dvh md:flex-row md:overflow-hidden">
+    <div className="flex h-screen min-h-0 flex-col overflow-hidden bg-[#0b0b0f] md:h-screen md:flex-row">
       <ChatSidebar
         variant="rail"
         chats={chatRows}
@@ -683,7 +745,7 @@ export default function ChatPage() {
         <AppChatHeader onOpenChatMenu={() => setMobileNavOpen(true)} />
 
         <main className="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-[#0b0b0f]">
-          <div className="hooklab-scrollbar mx-auto flex min-h-0 w-full max-w-7xl flex-1 flex-col overflow-y-auto overscroll-y-contain bg-[#0b0b0f] px-4 pb-[calc(8.5rem+env(safe-area-inset-bottom))] pt-4 sm:px-6 sm:pt-6 md:px-8 md:pb-[calc(10.5rem+env(safe-area-inset-bottom))] lg:px-10">
+          <div className="hooklab-scrollbar hooklab-chat-scroll mx-auto flex min-h-0 w-full max-w-7xl flex-1 flex-col overflow-y-auto overscroll-y-contain bg-[#0b0b0f] px-4 pb-32 pt-4 sm:px-6 sm:pt-6 sm:pb-36 md:px-8 md:pb-40 lg:px-10 lg:pb-[calc(10rem+env(safe-area-inset-bottom))]">
             {messages.length === 0 && !loading && (
               <div className="hooklab-message-enter flex flex-1 flex-col justify-center py-6 sm:py-10">
                 <div className="mx-auto w-full max-w-4xl text-center">
@@ -750,7 +812,8 @@ export default function ChatPage() {
                   m.role === "assistant" && prev?.role === "assistant";
 
                 const tightAssistantPair =
-                  assistantContinued && m.content.length < 140;
+                  assistantContinued &&
+                  (m.content || "").length < 140;
 
                 const assistantAfterUser =
                   m.role === "assistant" && prev?.role === "user";
@@ -770,6 +833,7 @@ export default function ChatPage() {
                     <ChatBubble
                       role={m.role}
                       content={m.content}
+                      image={m.image}
                       suggestions={
                         m.role === "assistant" && i === messages.length - 1
                           ? suggestions
@@ -842,7 +906,7 @@ export default function ChatPage() {
           </div>
         </main>
 
-        <div className="fixed bottom-0 left-0 right-0 z-30 border-t border-[#1f1f26]/80 bg-[#0b0b0f] shadow-[0_-12px_40px_-8px_rgba(0,0,0,0.55)] backdrop-blur-xl supports-[backdrop-filter]:bg-[#0b0b0f]/97 md:left-[280px]">
+        <div className="fixed bottom-0 left-0 right-0 z-30 border-t border-[#1f1f26]/70 bg-[#0b0b0f]/96 shadow-[0_-12px_40px_-8px_rgba(0,0,0,0.6)] backdrop-blur-xl backdrop-saturate-150 supports-[backdrop-filter]:bg-[#0b0b0f]/90 md:left-[280px]">
           <ChatInput
             ref={inputRef}
             value={input}

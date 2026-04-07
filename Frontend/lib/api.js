@@ -160,6 +160,50 @@ export async function analyzeInstagramProfile(imageFile, idea, accessToken = nul
 }
 
 /**
+ * POST /api/analyze — JSON: data URL in `image`, or raw base64 + mimeType.
+ * @param {{ idea?: string, image?: string, imageBase64?: string, mimeType?: string }} payload
+ * @param {string | null} [accessToken]
+ */
+export async function analyzeInstagramProfileJson(payload, accessToken = null) {
+  const url = `${base()}/api/analyze`;
+  const idea = typeof payload?.idea === "string" ? payload.idea : "";
+  const body =
+    typeof payload?.image === "string" && payload.image.startsWith("data:")
+      ? { idea, image: payload.image }
+      : {
+          idea,
+          imageBase64: payload?.imageBase64,
+          mimeType: payload?.mimeType || "image/jpeg",
+        };
+
+  const headers = { "Content-Type": "application/json" };
+  if (accessToken) {
+    headers.Authorization = `Bearer ${accessToken}`;
+  }
+
+  const res = await fetch(url, { method: "POST", headers, body: JSON.stringify(body) });
+
+  let data;
+  try {
+    data = await res.json();
+  } catch {
+    const t = await res.text();
+    if (!res.ok) throw new Error(t || `Request failed (${res.status})`);
+    throw new Error("Invalid response from server");
+  }
+
+  if (!res.ok) {
+    const msg =
+      data?.error || data?.message || `Request failed (${res.status})`;
+    throw new Error(msg);
+  }
+
+  const text = data?.result;
+  if (text != null && typeof text === "string") return text;
+  throw new Error("No analysis returned. Try again.");
+}
+
+/**
  * POST /api/pinterest-inspiration — Pinterest search links for a post idea (rich context string).
  * @param {string} context — idea + prior assistant output, etc.
  * @param {string | null} [accessToken]

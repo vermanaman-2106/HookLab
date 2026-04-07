@@ -49,7 +49,10 @@ export function chatTitleFromPayload(messagesJson) {
   if (!parsed) return "New chat";
   const firstUser = parsed.messages.find((m) => m.role === "user");
   const raw = (firstUser?.content ?? parsed.idea ?? "New chat").trim();
-  if (!raw) return "New chat";
+  if (!raw) {
+    if (firstUser?.image?.src) return "Profile screenshot";
+    return "New chat";
+  }
   return raw.length > 44 ? `${raw.slice(0, 44)}…` : raw;
 }
 

@@ -115,8 +115,8 @@ const ChatInput = forwardRef(function ChatInput(
     <div className="bg-gradient-to-t from-[#0b0b0f] via-[#0b0b0f]/98 to-transparent pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 sm:pt-4">
       <div className="mx-auto w-full max-w-7xl px-3 sm:px-6 md:px-8 lg:px-10">
         {previewUrl && imageFile ? (
-          <div className="mb-2 flex items-center gap-2.5 rounded-xl border border-[#2a2a32] bg-[#16161c] px-2.5 py-2 sm:mb-2.5">
-            <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-white/10 bg-black/40">
+          <div className="mb-1.5 flex max-w-full items-center gap-2 pl-0.5 sm:mb-2">
+            <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg border border-white/12 bg-black/50 shadow-sm">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={previewUrl}
@@ -124,19 +124,15 @@ const ChatInput = forwardRef(function ChatInput(
                 className="h-full w-full object-cover"
               />
             </div>
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-[12px] font-medium text-gray-200 sm:text-[13px]">
-                {imageFile.name}
-              </p>
-              <p className="text-[10px] text-gray-500 sm:text-[11px]">
-                Profile screenshot
-              </p>
-            </div>
+            <p className="min-w-0 flex-1 truncate text-[12px] text-gray-400 sm:text-[13px]">
+              <span className="text-gray-300">{imageFile.name}</span>
+              <span className="text-gray-600"> · sends as chat message</span>
+            </p>
             <button
               type="button"
               onClick={clearImage}
               disabled={disabled}
-              className="shrink-0 rounded-full p-2 text-gray-500 transition-colors hover:bg-white/[0.08] hover:text-white disabled:opacity-40"
+              className="shrink-0 rounded-full p-1.5 text-gray-500 transition-colors hover:bg-white/[0.08] hover:text-white disabled:opacity-40"
               aria-label="Remove image"
             >
               <X className="h-4 w-4" />

@@ -49,7 +49,8 @@ app.use(cors(corsOptions));
 /** Explicit root OPTIONS (valid path); other paths are covered by the middleware above. */
 app.options("/", cors(corsOptions));
 
-/** ✅ Body Parser */
+/** ✅ Body Parser — larger cap for analyze JSON (base64 images) before global limit */
+app.use("/api/analyze", express.json({ limit: "12mb" }));
 app.use(express.json({ limit: "64kb" }));
 
 /** ✅ Routes */

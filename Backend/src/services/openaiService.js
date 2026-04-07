@@ -125,27 +125,49 @@ Top 1% Instagram growth strategist—think with the creator, not a generic tool.
 
 `;
 
+/**
+ * GRWM / Transition / Lifestyle — extra sections before ✨ Next Steps (all deliverable types).
+ */
+const NICHE_CREATOR_APPEND = `
+
+---
+NICHE LAYERS:
+From idea + CREATOR CONTEXT, infer ONE primary lane: GRWM | Transition | Lifestyle | General (weak signals = General).
+
+Immediately BEFORE ✨ Next Steps (after the main deliverable sections), add ONLY when lane fits:
+• GRWM (get ready, GRWM, makeup/skin/hair prep chatty routine): 🎙️ Talking Points + 💖 Emotional Hooks (specific to their idea).
+• Transition (transition, flip, before/after, glow-up cut, outfit/look change): ✨ Transition Ideas + 🎬 Visual-Style Hooks (bold beat/visual hooks, not generic).
+• Lifestyle (lifestyle, day-in-life, vlog, aesthetic routine, soft living): 📖 Story Angle + POV-Style Hooks (first-person hook lines).
+• General: omit these extra blocks—stay lean.
+
+Do not output robotic labels like "Lane: GRWM". Keep tone strategist-human.
+---
+`;
+
 /** Reel / Strategy / Full: voice + ✨ Next Steps contract */
 const SYSTEM_VOICE_APPEND = `
 
 ---
-Deliver: full structured sections. One callout (mistake/fear/pattern + fix). Insider tone; use CREATOR CONTEXT Q&A if present.
-End with only:
+Deliver: full structured sections. One callout (mistake/fear/pattern + fix). Insider tone; use CREATOR CONTEXT Q&A if present. Apply NICHE LAYERS before ✨ Next Steps.
 
 ✨ Next Steps:
-Exactly 4 hyphen bullets—each a short question ending in ? (1) strategic/challenging vs idea (2) different “next move” question (3) another angle on this output (4) new angle—no duplicate intent/wording.
-Never: "Want to take this further?" / "Want to go deeper?" Vary each run. Stay in-thread. No ** or #.
+Exactly 4 hyphen bullets—each a short question ending in ?
+(1) Niche-aware: if GRWM → thrust like "Want me to write a full talking script for your GRWM?" If Transition → "Want more viral transition ideas?" If Lifestyle → "Want me to turn this into a viral story format?" If General → sharp strategic question tied to this idea (never generic filler).
+(2) Exact: Want visual inspiration? I can show Pinterest-style examples?
+(3) Different follow-up vs (1)—new angle on this output.
+(4) Different vs (1)–(3); no repeated intent.
+Never: "Want to take this further?" / "Want to go deeper?" Stay in-thread. No ** or #.
 ---
 `;
 
-/** Post Ideas: Pinterest line + same ✨ contract */
+/** Post Ideas — same niche + ✨ contract */
 const POST_IDEAS_APPEND = `
 
 ---
-Full Post Ideas sections. Callout + CREATOR CONTEXT if any. No Pinterest URLs before ✨ Next Steps.
+Full Post Ideas sections. Callout + CREATOR CONTEXT. No Pinterest URLs before ✨ Next Steps. Apply NICHE LAYERS before ✨ Next Steps.
 
 ✨ Next Steps:
-4 hyphen bullets, each ending in ? — (1) strategic vs idea (2) EXACT: Do you want Pinterest-style visual inspiration for this? (3) dynamic follow-up, ≠(1) (4) new angle; no dupes. No lazy closers. No ** or #.
+4 hyphen bullets ending in ? — (1) same niche-aware rule as other deliverables (2) Exact: Want visual inspiration? I can show Pinterest-style examples? (3) dynamic, ≠(1) (4) new angle. No lazy closers. No ** or #.
 ---
 `;
 
@@ -200,7 +222,7 @@ async function generateClarificationQuestions(idea) {
     throw err;
   }
 
-  const system = `Intake strategist: for one creator idea, output exactly 3 short, specific questions covering audience, goal, constraint (time/niche/fear/platform). Open-ended, DM tone—not a form. JSON only, no markdown: {"questions":["q1?","q2?","q3?"]}`;
+  const system = `Intake strategist: 3 short questions for one creator idea—audience, goal, constraint (time/niche/fear/platform). Open DM tone, never form-like numbering ("question 1 of 3"). GRWM/transition/lifestyle ideas welcome. JSON only: {"questions":["q1?","q2?","q3?"]}`;
 
   const completion = await openai.chat.completions.create({
     model: getModel(),
@@ -244,7 +266,8 @@ async function generateHookLabContent(
   }
 
   const voiceAppend = type === "post" ? POST_IDEAS_APPEND : SYSTEM_VOICE_APPEND;
-  const selectedPrompt = STRATEGIST_IDENTITY + getPrompt(type) + voiceAppend;
+  const selectedPrompt =
+    STRATEGIST_IDENTITY + getPrompt(type) + NICHE_CREATOR_APPEND + voiceAppend;
 
   let userContent;
 

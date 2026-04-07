@@ -49,6 +49,19 @@ html {
   background: rgba(255, 255, 255, 0.22);
 }
 
+/* Main chat thread: momentum scrolling on iOS, contain overscroll, smooth scroll */
+.hooklab-chat-scroll {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hooklab-chat-scroll {
+    scroll-behavior: auto;
+  }
+}
+
 /* Root scroll (short pages / mobile) matches app bg — no bright gutter */
 html.hooklab-scrollbar,
 body.hooklab-scrollbar {
